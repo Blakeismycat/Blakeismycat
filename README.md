@@ -1,4 +1,4 @@
--- Un1versxl boosters config 
+-- Cheezburger config (no skidding)
 
 local GuiLibrary = shared.GuiLibrary
 local blockraycast = RaycastParams.new()
