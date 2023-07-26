@@ -3470,6 +3470,7 @@ OldList = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptio
 		})
 	end)
 
+
 --// Damage Indicators
 --// Credits to Burger, MeltedX, and Goose for these!
 --// Got perms from Burger to use ;)
@@ -3502,7 +3503,6 @@ Function = function(Callback)
     end
 end
 })
-
 runFunction(function()
     local hasTeleported = false
     local TweenService = game:GetService("TweenService")
