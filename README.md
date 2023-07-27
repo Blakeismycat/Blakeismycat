@@ -3359,8 +3359,8 @@ end)
 
 
 		local plr1 = game.Players.LocalPlayer
-		createwarning("SturdyWare | Boosters", "Welcome back "..(plr1.Name or plr1.DisplayName), 5)
-		createwarning("SturdyWare | Boosters", "Thank you from the SturdyWare devs", 5)
+		createwarning("Cheezburger| config", "Welcome back "..(plr1.Name or plr1.DisplayName), 5)
+		createwarning("Cheezburger| config", "Thank you from the SturdyWare devs", 5)
 
 
 
@@ -3469,4 +3469,83 @@ OldList = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptio
 			end
 		})
 	end)
- 
+
+runcode(function()
+    local hasTeleported = false
+    local TweenService = game:GetService("TweenService")
+
+    function findNearestPlayer()
+        local nearestPlayer = nil
+        local minDistance = math.huge
+
+        for _,v in pairs(game.Players:GetPlayers()) do
+            if v ~= lplr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Team ~= lplr.Team and v.Character:FindFirstChild("Humanoid").Health > 0 then
+                local distance = (v.Character.HumanoidRootPart.Position - lplr.Character.HumanoidRootPart.Position).magnitude
+                if distance < minDistance then
+                    nearestPlayer = v
+                    minDistance = distance
+                end
+            end
+        end
+        return nearestPlayer
+    end
+
+
+    function tweenToNearestPlayer()
+        local nearestPlayer = findNearestPlayer()
+        if nearestPlayer and not hasTeleported then
+            hasTeleported = true
+
+            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0)
+
+            local tween = TweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.94), {CFrame = nearestPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0)})
+            tween:Play()
+        end
+    end
+
+    PlayerTp = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = "PlayerTP",
+        Function = function(callback)
+            if callback then
+                lplr.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Dead)
+                lplr.CharacterAdded:Connect(function()
+                    wait(0.3)
+                    tweenToNearestPlayer()
+                end)
+                hasTeleported = false
+                PlayerTp["ToggleButton"](false)
+            end
+        end,
+        ["HoverText"] = "Teleports you to the closest player that is not on your team (BETA)"
+    })
+end)
+
+local Messages = {"AcronisWare", "Skidded", "ACRONISWARE ON TOP", "Thump!", "KYS", "FUCK", 
+}
+local old
+local FunnyIndicator = {Enabled = false}
+FunnyIndicator = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+Name = "Damage Indicators",
+Function = function(Callback)
+    FunnyIndicator.Enabled = Callback
+    if FunnyIndicator.Enabled then
+        old = debug.getupvalue(bedwars.DamageIndicator, 10)["Create"]
+        debug.setupvalue(bedwars.DamageIndicator, 10, {
+            Create = function(self, obj, ...)
+                spawn(function()
+                    pcall(function()
+                        obj.Parent.Text = Messages[math.random(1, #Messages)]
+                        obj.Parent.TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+                    end)
+                end)
+                return game:GetService("TweenService"):Create(obj, ...)
+            end
+        })
+    else
+        debug.setupvalue(bedwars.DamageIndicator, 10, {
+            Create = old
+        })
+        old = nil
+    end
+end
+})
